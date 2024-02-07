@@ -1,3 +1,3 @@
 ## Barren Plateau
 
-pass
+pip install -r requirements.txt

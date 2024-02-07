@@ -2,15 +2,13 @@ import csv
 import json
 from typing import List
 from tqdm import trange
-import scienceplots
-import matplotlib.pyplot as plt
 import numpy as np
 import pennylane as qml
 
 
 class BP:
     def __init__(self, modify: bool = False, qubits: List[int] = None, layers: List[int] = None,
-                 random_rotation_gate: List[str] = None, samples: int = 100, result: bool = False, save: bool = False):
+                 random_rotation_gate: List[str] = None, samples: int = 100, result: bool = False):
         if qubits is None:
             qubits = [2, 4, 6]
         if layers is None:
@@ -23,7 +21,6 @@ class BP:
         self.random_rotation_gate = random_rotation_gate
         self.samples = samples
         self.result = result
-        self.save = save
         self.detail_key = ['qubit', 'layer', 'paras', 'outputs', 'gradients', 'variance', 'modified']
 
     def rotation_gate(self, i: int, qubit: int, angle: float = None):
@@ -109,12 +106,11 @@ class BP:
 
     def save_detail_results(self):
         detail, _ = self.main()
-        if self.save:
-            with open("detail_data.csv", "a", newline="") as file:
-                file.write('\n')
-                detail_data = csv.DictWriter(file, fieldnames=self.detail_key)
-                for row in detail:
-                    row['paras'] = json.dumps(row['paras'])
-                    row['outputs'] = json.dumps(row['outputs'])
-                    row['gradients'] = json.dumps(row['gradients'])
-                    detail_data.writerow(row)
+        with open("detail_data.csv", "a", newline="") as file:
+            file.write('\n')
+            detail_data = csv.DictWriter(file, fieldnames=self.detail_key)
+            for row in detail:
+                row['paras'] = json.dumps(row['paras'])
+                row['outputs'] = json.dumps(row['outputs'])
+                row['gradients'] = json.dumps(row['gradients'])
+                detail_data.writerow(row)
