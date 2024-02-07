@@ -8,7 +8,7 @@ import pennylane as qml
 
 class BP:
     """
-    This class is used to simulate the phenomenon of barren plateau.
+    This class is used to simulate the barren plateau phenomenon.
     """
 
     def __init__(self, modify: bool = False, qubits: List[int] = None, layers: List[int] = None,
@@ -17,38 +17,38 @@ class BP:
         Initializes a new instance of the Class.
 
         Args:
-            param modify: A boolean flag indicating whether to use the modified circuit.
+            param modify: A boolean flag indicates whether to use the modified circuit.
             param qubits: A list of integers presents simulated qubits.
             param layers: A list of integers presents simulated layers.
             param random_rotation_gate: A list of 'x','y' and 'z'.
             param samples: An integer presents the repetitions of the circuits.
-            param result: A boolean flag indicating whether to print the result.
-            param save: A boolean flag indicating whether to save the detail data.
+            param result: A boolean flag indicates whether to print the result.
+            param save: A boolean flag indicates whether to save the detail data.
         """
         try:
             if not isinstance(modify, bool):
-                raise ValueError('param:{modify} must be a bool')
+                raise ValueError('para:{modify} must be a bool.')
             if qubits is None:
                 qubits = [2, 4, 6]
                 print('Test on {} qubits'.format(qubits))
             elif not isinstance(qubits, list) or not all(isinstance(q, int) for q in qubits):
-                raise ValueError("param:{qubits} must be a list of integers")
+                raise ValueError("para:{qubits} must be a list of integers.")
             if layers is None:
                 layers = [5, 10, 20, 50]
                 print('Test on {} layers'.format(layers))
             elif not isinstance(layers, list) or not all(isinstance(_, int) for _ in layers):
-                raise ValueError("param:{layers} must be a list of integers")
+                raise ValueError("para:{layers} must be a list of integers.")
             if random_rotation_gate is None:
                 random_rotation_gate = ['x', 'y', 'z']
             elif not isinstance(random_rotation_gate, list) or not all(
                     isinstance(gate, str) for gate in random_rotation_gate):
-                raise ValueError("param:{random_rotation_gate} must be ['x', 'y', 'z']")
+                raise ValueError("para:{random_rotation_gate} must be ['x', 'y', 'z'].")
             if not isinstance(samples, int) or samples <= 0:
-                raise ValueError("param:{samples} must be a positive integer")
+                raise ValueError("para:{samples} must be a positive integer.")
             if not isinstance(result, bool):
-                raise ValueError("param:{result} must be a bool")
+                raise ValueError("para:{result} must be a bool.")
             if not isinstance(save, bool):
-                raise ValueError("param:{save} must be a bool")
+                raise ValueError("para:{save} must be a bool.")
         except ValueError as e:
             print('Error initial parameter:', e)
             raise
@@ -210,7 +210,7 @@ class BP:
         """
         Save the detail data in detail_data.csv.
 
-        param detail: A list of dictionary. len(paras)=len(outputs)=len(gradients)=samples.
+        param detail: A list of dictionaries. len(paras)=len(outputs)=len(gradients)=samples.
                 detail[0] = {'qubit': int, 'layer': int, 'paras': List[float], 'outputs': List[float],
                 'gradients': List[float], 'variance': float, 'modified': bool}.
         """

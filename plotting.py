@@ -9,17 +9,75 @@ from barren_plateau import BP
 
 
 class PLOTTING:
+    """
+    This class is used to plot the results of the barren plateau.
+    """
     def __init__(self, original_data: List = None, modified_data: List = None, saved_data: bool = False,
                  qubits: List[int] = None, layers: List[int] = None,
                  random_rotation_gate: List[str] = None, samples: int = 100, line_width: int = 3,
                  bar_width: float = 0.01, font_size: int = 30, legend_size: int = 15, label_size: int = 30,
                  absolute: bool = True):
-        if qubits is None:
-            qubits = [2, 4, 6, 8, 10, 12, 14, 16, 18]
-        if layers is None:
-            layers = [5, 10, 20, 50, 100, 150, 200, 250, 300, 400, 500]
-        if random_rotation_gate is None:
-            random_rotation_gate = ['x', 'y', 'z']
+        """
+        Initializes a new instance of the Class.
+
+        Args:
+            param original_data: A list of dictionaries contains barren plateaus data
+            param modified_data: A list of dictionaries contains modified circuit data
+            param saved_data: a boolean flag indicates whether to use the data that saved in detail_data.csv.
+            param qubits: A list of integers presents simulated qubits.
+            param layers: A list of integers presents simulated layers.
+            param random_rotation_gate: A list of 'x','y' and 'z'.
+            param samples: An integer presents the repetitions of the circuits.
+            param line_width: An integer presents the line width.
+            param bar_width: A float presents the bar width.
+            param font_size: An integer presents the font size.
+            param legend_size: An integer presents the legend size.
+            param label_size: An integer presents the label size.
+            param absolute: A boolean flag indicates whether to use absolute data of outputs.
+
+        Self:
+            param original: A class uses original circuit .
+            param modified: A class uses modified circuit.
+        """
+        try:
+            if not isinstance(saved_data, bool):
+                raise ValueError("para:{saved_data} must be a bool.")
+            if saved_data is False:
+                if not isinstance(original_data, list):
+                    raise ValueError("para:{original_data} must be a list.")
+                if not isinstance(modified_data, list):
+                    raise ValueError("para:{modified_data} must be a list.")
+            if qubits is None:
+                qubits = [2, 4, 6]
+            elif not isinstance(qubits, list) or not all(isinstance(q, int) for q in qubits):
+                raise ValueError("para:{qubits} must be a list of integers.")
+            if layers is None:
+                layers = [5, 10, 20, 50]
+            elif not isinstance(layers, list) or not all(isinstance(_, int) for _ in layers):
+                raise ValueError("para:{layers} must be a list of integers.")
+            if random_rotation_gate is None:
+                random_rotation_gate = ['x', 'y', 'z']
+            elif not isinstance(random_rotation_gate, list) or not all(
+                    isinstance(gate, str) for gate in random_rotation_gate):
+                raise ValueError("para:{random_rotation_gate} must be ['x', 'y', 'z'].")
+            if not isinstance(samples, int) or samples <= 0:
+                raise ValueError("para:{samples} must be a positive integer.")
+            if not isinstance(line_width, int) or line_width <= 0:
+                raise ValueError("para:{line_width} must be a positive integer.")
+            if not isinstance(bar_width, float) or bar_width <= 0:
+                raise ValueError("para:{bar_width} must be a positive float.")
+            if not isinstance(font_size, int) or font_size <= 0:
+                raise ValueError("para:{font_size} must be a positive integer.")
+            if not isinstance(legend_size, int) or legend_size <= 0:
+                raise ValueError("para:{legend_size} must be a positive integer.")
+            if not isinstance(label_size, int) or label_size <= 0:
+                raise ValueError("para:{label_size} must be a positive integer.")
+            if not isinstance(absolute, bool):
+                raise ValueError("para:{absolute} must be a bool.")
+        except ValueError as e:
+            print("Error initial parameter:", e)
+            raise
+
         self.qubits = qubits
         self.layers = layers
         self.random_rotation_gate = random_rotation_gate
@@ -41,6 +99,22 @@ class PLOTTING:
 
     @staticmethod
     def relist(data: List[dict], refer_key: str):
+        """
+        This function is used to count the occurrence of qubits and layers.
+
+        Args:
+            param data: A list of dictionaries that contains the key:qubits and key:layers.
+            param refer_key: A string of qubits or layers.
+
+        Return:
+            param values: A list of integers, which is arranged in ascending order.
+        """
+        try:
+            if refer_key == 'qubit' or refer_key == 'layer':
+                raise ValueError('para{refer_key} must be qubit or layer.')
+        except ValueError as e:
+            print('Error initial parameter:', e)
+            raise
         values = []
         for i in data:
             values.append(i[refer_key])
@@ -48,6 +122,18 @@ class PLOTTING:
         return values
 
     def use_saved_data(self):
+        """
+        This function is used to transfer the data in detail_data.csv to a list of dictionaries.
+        It will transfer the para{qubits} and para{layers} that base on the detail_data.csv.
+
+        Self:
+            param original_data, modified_data, qubits, layers.
+            func relist().
+
+        Return:
+            param original_data: A list of dictionaries, which contains the detail data about original circuit.
+            param modified_data: A list of dictionaries, which contains the detail data about modified circuit.
+        """
         self.original_data = []
         self.modified_data = []
         with open("detail_data.csv", "r", newline="") as file:
@@ -59,7 +145,7 @@ class PLOTTING:
                 row['outputs'] = json.loads(row['outputs'])
                 row['gradients'] = json.loads(row['gradients'])
                 row['variance'] = float(row['variance'])
-                if row['modified'] == 'False':
+                if row['modified'].lower() == 'false':
                     self.original_data.append(row)
                 else:
                     self.modified_data.append(row)
@@ -68,6 +154,17 @@ class PLOTTING:
         return self.original_data, self.modified_data
 
     def transfer_detail_to_results(self):
+        """
+        This function is used to transfer the detail data to a list of variance.
+
+        Self:
+            param qubits, layers.
+            func use_saved_data().
+
+        Return:
+            param original_data: A list of dictionaries, which contains the variance about original circuit.
+            param modified_data: A list of dictionaries, which contains the variance about modified circuit.
+        """
         original, modified = self.use_saved_data()
         original_data = []
         modified_data = []
@@ -86,6 +183,34 @@ class PLOTTING:
         return original_data, modified_data
 
     def qubit_output(self, scatter: bool = True, bar: bool = True):
+        """
+        This function is plot the relationship between qubits and outputs.
+        It will order 3 different mode.
+            1. If para{saved_data} is True, it will use the saved data.
+            2. If para{original_data} or para{modified_data} is not None, it will use the offered data.
+            3. Else, it will use the data by class BP
+
+        Arg:
+            param scatter: A boolean flag indicates whether to plot scatter.
+            param bar: A boolean flag indicates whether to plot bar.
+
+        Self:
+            param saved_data, qubits, layers, absolute.
+            class original(BP), modified(BP)
+            plot param font_size, bar_width, legend_size
+            func use_saved_data().
+
+        Return:
+            plt.show()
+        """
+        try:
+            if not isinstance(scatter, bool):
+                raise ValueError('para:{scatter} must be a bool')
+            if not isinstance(bar, bool):
+                raise ValueError('para:{bar} must be a bool')
+        except ValueError as e:
+            print('Error parameter:', e)
+            raise
         if self.saved_data:
             original_data, modified_data = self.use_saved_data()
         elif self.original_data is None:
@@ -136,6 +261,34 @@ class PLOTTING:
             plt.show()
 
     def qubit_gradient(self, scatter: bool = True, bar: bool = True):
+        """
+        This function is plot the relationship between qubits and gradients.
+        It will order 3 different mode.
+            1. If param{saved_data} is True, it will use the saved data.
+            2. If param{original_data} or param{modified_data} is not None, it will use the offered data.
+            3. Else, it will use the data by class BP
+
+        Arg:
+            param scatter: A boolean flag indicates whether to plot scatter.
+            param bar: A boolean flag indicates whether to plot bar.
+
+        Self:
+            param saved_data, qubits, layers.
+            class original(BP), modified(BP).
+            plot param font_size, bar_width, legend_size.
+            func use_saved_data().
+
+        Return:
+            plt.show()
+        """
+        try:
+            if not isinstance(scatter, bool):
+                raise ValueError('para:{scatter} must be a bool')
+            if not isinstance(bar, bool):
+                raise ValueError('para:{bar} must be a bool')
+        except ValueError as e:
+            print('Error parameter:', e)
+            raise
         if self.saved_data:
             original_data, modified_data = self.use_saved_data()
         elif self.original_data is None:
@@ -179,6 +332,33 @@ class PLOTTING:
             plt.show()
 
     def qubits_variance(self, refer_layer: int = 300):
+        """
+        This function is plot the relationship between qubits and the variance of the gradient.
+        It will order 3 different mode.
+            1. If para{saved_data} is True, it will use the saved data.
+            2. If para{original_data} or para{modified_data} is not None, it will use the offered data.
+            3. Else, it will use the data by class BP
+
+        Arg:
+            param refer_layer: An integer presents the referred layer.
+
+        Self:
+            param saved_data, qubits, layers.
+            class original(BP), modified(BP).
+            plot param line_width, font_size, legend_size.
+            func use_saved_data(), transfer_detail_to_results().
+
+        Return:
+            plt.show()
+        """
+        try:
+            if not isinstance(refer_layer, int) or refer_layer <= 0:
+                raise ValueError('para:{refer_layer} must be a positive integer')
+            if refer_layer not in self.layers:
+                raise  ValueError('para:{refer_layer} can not be found')
+        except ValueError as e:
+            print('Error parameter:', e)
+            raise
         index = self.layers.index(refer_layer)
         if self.saved_data:
             original_data, modified_data = self.transfer_detail_to_results()
@@ -209,6 +389,22 @@ class PLOTTING:
         plt.show()
 
     def layers_variance(self):
+        """
+                This function is plot the relationship between layers and the variance of the gradient.
+                It will order 3 different mode.
+                    1. If para{saved_data} is True, it will use the saved data.
+                    2. If para{original_data} or para{modified_data} is not None, it will use the offered data.
+                    3. Else, it will use the data by class BP
+
+                Self:
+                    param saved_data, qubits, layers.
+                    class original(BP), modified(BP).
+                    plot param line_width, font_size, legend_size.
+                    func use_saved_data(), transfer_detail_to_results().
+
+                Return:
+                    plt.show()
+                """
         if self.saved_data:
             original_data, modified_data = self.transfer_detail_to_results()
         elif self.original_data is None:
