@@ -99,6 +99,7 @@ class PLOTTING:
 
     @staticmethod
     def relist(data: List[dict], refer_key: str):
+        print(refer_key)
         """
         This function is used to count the occurrence of qubits and layers.
 
@@ -110,10 +111,10 @@ class PLOTTING:
             param values: A list of integers, which is arranged in ascending order.
         """
         try:
-            if refer_key == 'qubit' or refer_key == 'layer':
+            if refer_key != 'qubit' and refer_key != 'layer':
                 raise ValueError('para{refer_key} must be qubit or layer.')
         except ValueError as e:
-            print('Error initial parameter:', e)
+            print('Error parameter:', e)
             raise
         values = []
         for i in data:
@@ -355,7 +356,7 @@ class PLOTTING:
             if not isinstance(refer_layer, int) or refer_layer <= 0:
                 raise ValueError('para:{refer_layer} must be a positive integer')
             if refer_layer not in self.layers:
-                raise  ValueError('para:{refer_layer} can not be found')
+                raise ValueError('para:{refer_layer} can not be found')
         except ValueError as e:
             print('Error parameter:', e)
             raise
