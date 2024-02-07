@@ -1,18 +1,16 @@
-import csv
 import json
+import sqlite3
 from typing import List
-from tqdm import trange
 import numpy as np
 import pennylane as qml
+from tqdm import trange
 
 
 class BP:
     """
     This class is used to simulate the barren plateau phenomenon.
     """
-
-    def __init__(self, modify: bool = False, qubits: List[int] = None, layers: List[int] = None,
-                 random_rotation_gate: List[str] = None, samples: int = 100, result: bool = False, save: bool = False):
+    def __init__(self, modify: bool = False, qubits: List[int] = None, layers: List[int] = None, random_rotation_gate: List[str] = None, samples: int = 100, result: bool = False, save: bool = False):
         """
         Initializes a new instance of the Class.
 
@@ -129,7 +127,7 @@ class BP:
                 qml.CZ(wires=[i, i + 1])
         return qml.expval(qml.PauliZ(0) @ qml.PauliZ(1))
 
-    def main(self):
+    def run(self):
         """
         This is the main process of this class, which is used to generate data.
 
@@ -166,8 +164,8 @@ class BP:
                     outputs.append(circuit(para))
                     gradients.append(differential_circuit(para))
                 gradients_variance.append(np.var(gradients))
-                detail.append({'qubit': qubit, 'layer': layer, 'paras': paras, 'outputs': outputs,
-                              'gradients': gradients, 'variance': gradients_variance[-1], 'modified': self.modify})
+                detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'paras': paras, 'outputs': outputs,
+                              'gradients': gradients, 'variance': gradients_variance[-1]})
                 if self.save:
                     self.save_detail_data(detail[-1])
             results.append(gradients_variance)
@@ -184,7 +182,7 @@ class BP:
            Return:
                 param results: A list of lists, which contain the variance of the gradients.
        """
-        results, _ = self.main()
+        results, _ = self.run()
         if self.result:
             print(results)
         return results
@@ -200,7 +198,7 @@ class BP:
            Return:
                 param detail: A list of dictionary.
        """
-        _, detail = self.main()
+        _, detail = self.run()
         if self.result:
             print(detail)
         return detail
@@ -208,18 +206,16 @@ class BP:
     @staticmethod
     def save_detail_data(detail: dict):
         """
-        Save the detail data in detail_data.csv.
+        Save the detail data in 'detail_data.db'.
 
         param detail: A list of dictionaries. len(paras)=len(outputs)=len(gradients)=samples.
-                detail[0] = {'qubit': int, 'layer': int, 'paras': List[float], 'outputs': List[float],
-                'gradients': List[float], 'variance': float, 'modified': bool}.
+                detail = {'modified': bool, 'qubit': int, 'layer': int, 'paras': List[float], 'outputs': List[float], 'gradients': List[float], 'variance': float}.
         """
-        detail_key = ['qubit', 'layer', 'paras', 'outputs', 'gradients', 'variance', 'modified']
-        with open("detail_data.csv", "a", newline="") as file:
-            file.write('\n')
-            detail_data = csv.DictWriter(file, fieldnames=detail_key)
-            for row in detail:
-                row['paras'] = json.dumps(row['paras'])
-                row['outputs'] = json.dumps(row['outputs'])
-                row['gradients'] = json.dumps(row['gradients'])
-                detail_data.writerow(row)
+        db = sqlite3.connect('detail_data.db')
+        cursor = db.cursor()
+        cursor.execute('''
+            INSERT OR REPLACE INTO details (modified, qubit, layer, paras, outputs, gradients, variance)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (detail['modified'], detail['qubit'], detail['layer'], json.dumps(detail['paras']), json.dumps(detail['outputs']), json.dumps(detail['gradients']), detail['variance']))
+        db.commit()
+        db.close()

@@ -12,11 +12,13 @@ if __name__ == '__main__':
     # bp = BP()
     # results = bp.get_results()
     # print(results)
-    #
+
     # print('example 2: save data')
     # bp = BP(save=True)
+    # bp = BP(save=True, modify=True)
+    # bp.run()
 
-    f = PLOTTING(saved_data=True)
+    f = PLOTTING(saved_data=True, selected_qubits=[6], selected_layers=[5, 10, 50])
     print('example 3: plot qubit-outputs')
     f.qubit_output()
 
