@@ -2,8 +2,6 @@ import csv
 import json
 from typing import List
 from tqdm import trange
-import scienceplots
-import matplotlib.pyplot as plt
 import numpy as np
 import pennylane as qml
 

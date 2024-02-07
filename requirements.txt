@@ -1,4 +1,5 @@
-tqdm
-scienceplots
-matplotlib
-pennylane
+tqdm~=4.66.1
+scienceplots~=2.1.1
+matplotlib~=3.8.2
+pennylane~=0.34.0
+numpy~=1.26.4
