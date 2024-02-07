@@ -12,8 +12,7 @@ class PLOTTING:
     """
     This class is used to plot the results of the barren plateau.
     """
-    def __init__(self, original_data: List = None, modified_data: List = None, saved_data: bool = False, qubits: List[int] = None, layers: List[int] = None, selected_qubits: List[int] = None, selected_layers: List[int] = None, random_rotation_gate: List[str] = None, samples: int = 100, line_width: int = 3, bar_width: float = 0.01, font_size: int = 30, legend_size: int = 15, label_size: int = 30,
-                 absolute: bool = True):
+    def __init__(self, original_data: List = None, modified_data: List = None, saved_data: bool = False, qubits: List[int] = None, layers: List[int] = None, selected_qubits: List[int] = None, selected_layers: List[int] = None, random_rotation_gate: List[str] = None, samples: int = 100, line_width: int = 3, bar_width: float = 0.01, font_size: int = 30, legend_size: int = 15, label_size: int = 30, absolute: bool = True):
         """
         Initializes a new instance of the Class.
 
