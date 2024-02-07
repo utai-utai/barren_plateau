@@ -99,7 +99,6 @@ class PLOTTING:
 
     @staticmethod
     def relist(data: List[dict], refer_key: str):
-        print(refer_key)
         """
         This function is used to count the occurrence of qubits and layers.
 
@@ -173,14 +172,10 @@ class PLOTTING:
             original_temp = []
             modified_temp = []
             for layer in self.layers:
-                original_temp.extend(
-                    i['variance'] for i in original if i.get('qubit') == qubit and i.get('layer') == layer)
-                modified_temp.extend(
-                    i['variance'] for i in modified if i.get('qubit') == qubit and i.get('layer') == layer)
-                print(qubit, layer, original_temp)
+                original_temp.extend(i['variance'] for i in original if i.get('qubit') == qubit and i.get('layer') == layer)
+                modified_temp.extend(i['variance'] for i in modified if i.get('qubit') == qubit and i.get('layer') == layer)
             original_data.append(original_temp)
             modified_data.append(modified_temp)
-        print(original_data)
         return original_data, modified_data
 
     def qubit_output(self, scatter: bool = True, bar: bool = True):
@@ -250,12 +245,10 @@ class PLOTTING:
             modified_hist = [0 for _ in range(len(modified_outputs))]
             for i in range(len(original_qubit_index)):
                 original_hist[i], edges = np.histogram(original_outputs[i], bins=bins)
-                plt.bar(edges[:-1], original_hist[i], width=np.diff(edges), edgecolor="white", align="edge",
-                        alpha=0.6, label='original {} qubits'.format(original_qubit_index[i]))
+                plt.bar(edges[:-1], original_hist[i], width=np.diff(edges), edgecolor="white", align="edge", alpha=0.6, label='original {} qubits'.format(original_qubit_index[i]))
             for i in range(len(modified_qubit_index)):
                 modified_hist[i], edges = np.histogram(modified_outputs[i], bins=bins)
-                plt.bar(edges[:-1], modified_hist[i], width=np.diff(edges), edgecolor="black", align="edge",
-                        alpha=0.6, label='modified {} qubits'.format(modified_qubit_index[i]))
+                plt.bar(edges[:-1], modified_hist[i], width=np.diff(edges), edgecolor="black", align="edge", alpha=0.6, label='modified {} qubits'.format(modified_qubit_index[i]))
             plt.xlabel(r"$\langle \psi |H| \psi \rangle$", size=self.font_size)
             plt.ylabel('Frequency', size=self.font_size)
             plt.legend(fontsize=self.legend_size)
@@ -321,12 +314,10 @@ class PLOTTING:
             modified_hist = [0 for _ in range(len(modified_gradients))]
             for i in trange(len(original_qubit_index)):
                 original_hist[i], edges = np.histogram(original_gradients[i], bins=bins)
-                plt.bar(edges[:-1], original_hist[i], width=np.diff(edges), edgecolor="white", align="edge",
-                        alpha=0.6, label='original {} qubits'.format(original_qubit_index[i]))
+                plt.bar(edges[:-1], original_hist[i], width=np.diff(edges), edgecolor="white", align="edge", alpha=0.6, label='original {} qubits'.format(original_qubit_index[i]))
             for i in trange(len(modified_qubit_index)):
                 modified_hist[i], edges = np.histogram(modified_gradients[i], bins=bins)
-                plt.bar(edges[:-1], modified_hist[i], width=np.diff(edges), edgecolor="black", align="edge",
-                        alpha=0.6, label='modified {} qubits'.format(modified_qubit_index[i]))
+                plt.bar(edges[:-1], modified_hist[i], width=np.diff(edges), edgecolor="black", align="edge", alpha=0.6, label='modified {} qubits'.format(modified_qubit_index[i]))
             plt.xlabel('Gradient', size=self.font_size)
             plt.ylabel('Frequency', size=self.font_size)
             plt.legend(fontsize=self.legend_size)
@@ -363,7 +354,6 @@ class PLOTTING:
         index = self.layers.index(refer_layer)
         if self.saved_data:
             original_data, modified_data = self.transfer_detail_to_results()
-            print(original_data, modified_data)
         elif self.original_data is None:
             original_data = self.original.get_results()
             modified_data = self.modified.get_results()
@@ -378,11 +368,9 @@ class PLOTTING:
 
         # Plot the straight line fit to the semi-logy
         plt.semilogy(qubits, original_variance, "o", label='Original')
-        plt.semilogy(qubits, np.exp(p[0] * qubits + p[1]), "o-.", label="Original:Slope {:3.2f}".format(p[0]),
-                     linewidth=self.line_width)
+        plt.semilogy(qubits, np.exp(p[0] * qubits + p[1]), "o-.", label="Original:Slope {:3.2f}".format(p[0]), linewidth=self.line_width)
         plt.semilogy(qubits, modified_variance, 'o', label="Modified")
-        plt.semilogy(qubits, np.exp(q[0] * qubits + q[1]), "o-.", label="Modified:Slope {:3.2f}".format(q[0]),
-                     linewidth=self.line_width)
+        plt.semilogy(qubits, np.exp(q[0] * qubits + q[1]), "o-.", label="Modified:Slope {:3.2f}".format(q[0]), linewidth=self.line_width)
         plt.xlabel(r"N Qubits", fontsize=self.font_size)
         plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ variance", fontsize=self.font_size)
         plt.legend(fontsize=self.legend_size)
@@ -417,10 +405,8 @@ class PLOTTING:
 
         # Plot the line for each qubit
         for index, qubit in enumerate(self.qubits):
-            plt.plot(self.layers, original_data[index], marker='*', label='original {} qubits'.format(qubit),
-                     linewidth=self.line_width)
-            plt.plot(self.layers, modified_data[index], marker='o', label='modified {} qubits'.format(qubit),
-                     linewidth=self.line_width, color='red')
+            plt.plot(self.layers, original_data[index], marker='*', label='original {} qubits'.format(qubit), linewidth=self.line_width)
+            plt.plot(self.layers, modified_data[index], marker='o', label='modified {} qubits'.format(qubit), linewidth=self.line_width, color='red')
         plt.xlabel(r"Layers", fontsize=self.font_size)
         plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ variance", fontsize=self.font_size)
         plt.legend(bbox_to_anchor=(0.5, 1.15), loc='upper center', ncol=6, fontsize=self.legend_size)
