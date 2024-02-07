@@ -1,5 +1,4 @@
-from barren_plateau import BP
-from plotting import PLOTTING
+from barren import PLOTTING
 
 if __name__ == '__main__':
     # prepare parameters
