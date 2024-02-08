@@ -3,4 +3,3 @@ from .plotting import PLOTTING
 
 version = 1.0
 __all__ = ['BP', 'PLOTTING']
-
