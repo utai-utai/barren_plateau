@@ -177,7 +177,7 @@ class BP:
 
            Self:
                 param result.
-                func main().
+                func run().
 
            Return:
                 param results: A list of lists, which contain the variance of the gradients.
@@ -193,7 +193,7 @@ class BP:
 
            Self:
                 param result.
-                func main().
+                func run().
 
            Return:
                 param detail: A list of dictionary.
