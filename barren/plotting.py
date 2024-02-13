@@ -372,15 +372,6 @@ class PLOTTING:
         Return:
             plt.show()
         """
-        try:
-            if not isinstance(refer_layer, int) or refer_layer <= 0:
-                raise ValueError('para:{refer_layer} must be a positive integer')
-            if refer_layer not in self.layers:
-                raise ValueError('para:{refer_layer} can not be found')
-        except ValueError as e:
-            print('Error parameter:', e)
-            raise
-        index = self.layers.index(refer_layer)
         if self.saved_data:
             original_data, modified_data = self.transfer_detail_to_results()
         elif self.original_data is None:
@@ -389,6 +380,17 @@ class PLOTTING:
         else:
             original_data = self.original_data
             modified_data = self.modified_data
+        try:
+            if not isinstance(refer_layer, int) or refer_layer <= 0:
+                raise ValueError('para:{refer_layer} must be a positive integer')
+            if refer_layer not in self.layers:
+                print(self.qubits, self.layers)
+                print(refer_layer)
+                raise ValueError('para:{refer_layer} can not be found')
+        except ValueError as e:
+            print('Error parameter:', e)
+            raise
+        index = self.layers.index(refer_layer)
         original_variance = [original_data[i][index] for i in range(len(self.qubits))]
         modified_variance = [modified_data[i][index] for i in range(len(self.qubits))]
         p = np.polyfit(self.qubits, np.log(original_variance), 1)  # original poly fitting
@@ -435,6 +437,7 @@ class PLOTTING:
         # Plot the line for each qubit
         for index, qubit in enumerate(self.qubits):
             plt.plot(self.layers, original_data[index], marker='*', label='original {} qubits'.format(qubit), linewidth=self.line_width)
+        for index, qubit in enumerate(self.qubits):
             plt.plot(self.layers, modified_data[index], marker='o', label='modified {} qubits'.format(qubit), linewidth=self.line_width, color='red')
         plt.xlabel(r"Layers", fontsize=self.font_size)
         plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ variance", fontsize=self.font_size)
