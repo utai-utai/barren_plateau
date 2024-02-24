@@ -351,7 +351,7 @@ class PLOTTING:
             plt.legend(fontsize=self.legend_size)
             plt.show()
 
-    def qubits_variance(self, refer_layer: int = 300):
+    def qubits_variance(self, refer_layer: int = 500):
         """
         This function is plot the relationship between qubits and the variance of the gradient.
         It will order 3 different mode.
