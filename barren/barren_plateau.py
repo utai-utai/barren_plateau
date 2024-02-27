@@ -163,8 +163,7 @@ class BP:
                     outputs.append(circuit(para))
                     gradients.append(differential_circuit(para))
                 gradients_variance.append(np.var(gradients))
-                detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'paras': paras, 'outputs': outputs,
-                              'gradients': gradients, 'variance': gradients_variance[-1]})
+                detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'paras': paras, 'outputs': outputs, 'gradients': gradients, 'variance': gradients_variance[-1]})
                 if self.save:
                     self.save_detail_data(detail[-1])
             results.append(gradients_variance)
