@@ -1,6 +1,5 @@
 import json
 import sqlite3
-from typing import List
 import numpy as np
 import pennylane as qml
 from tqdm import trange
@@ -10,7 +9,7 @@ class BP:
     """
     This class is used to simulate the barren plateau phenomenon.
     """
-    def __init__(self, modify: bool = False, qubits: List[int] = None, layers: List[int] = None, random_rotation_gate: List[str] = None, samples: int = 100, result: bool = False, save: bool = False):
+    def __init__(self, modify: bool = False, qubits: list[int] = None, layers: list[int] = None, random_rotation_gate: list[str] = None, samples: int = 100, result: bool = False, save: bool = False):
         """
         Initializes a new instance of the Class.
 
@@ -208,7 +207,7 @@ class BP:
         Save the detail data in 'detail_data.db'.
 
         param detail: A list of dictionaries. len(paras)=len(outputs)=len(gradients)=samples.
-                detail = {'modified': bool, 'qubit': int, 'layer': int, 'paras': List[float], 'outputs': List[float], 'gradients': List[float], 'variance': float}.
+                detail = {'modified': bool, 'qubit': int, 'layer': int, 'paras': list[float], 'outputs': list[float], 'gradients': list[float], 'variance': float}.
         """
         db = sqlite3.connect('barren/detail_data.db')
         cursor = db.cursor()

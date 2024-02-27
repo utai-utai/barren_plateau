@@ -1,6 +1,5 @@
 import json
 import sqlite3
-from typing import List
 import numpy as np
 from tqdm import trange
 import matplotlib.pyplot as plt
@@ -11,7 +10,7 @@ class PLOTTING:
     """
     This class is used to plot the results of the barren plateau.
     """
-    def __init__(self, original_data: List = None, modified_data: List = None, saved_data: bool = False, qubits: List[int] = None, layers: List[int] = None, selected_qubits: List[int] = None, selected_layers: List[int] = None, random_rotation_gate: List[str] = None, samples: int = 100, line_width: int = 3, bar_width: float = 0.01, font_size: int = 30, legend_size: int = 15, label_size: int = 30, absolute: bool = True):
+    def __init__(self, original_data: list = None, modified_data: list = None, saved_data: bool = False, qubits: list[int] = None, layers: list[int] = None, selected_qubits: list[int] = None, selected_layers: list[int] = None, random_rotation_gate: list[str] = None, samples: int = 100, line_width: int = 3, bar_width: float = 0.01, font_size: int = 30, legend_size: int = 15, label_size: int = 30, absolute: bool = True):
         """
         Initializes a new instance of the Class.
 
@@ -103,7 +102,7 @@ class PLOTTING:
         self.absolute = absolute
 
     @staticmethod
-    def relist(data: List[dict], refer_key: str):
+    def relist(data: list[dict], refer_key: str):
         """
         This function is used to count the occurrence of qubits and layers.
 
@@ -184,7 +183,7 @@ class PLOTTING:
             modified_data.append(modified_temp)
         return original_data, modified_data
 
-    def select_required_data(self, datas: List[dict]):
+    def select_required_data(self, datas: list[dict]):
         """
         This function is used to select the data by using required qubits and layers.
 
@@ -352,7 +351,7 @@ class PLOTTING:
             plt.legend(fontsize=self.legend_size)
             plt.show()
 
-    def qubits_variance(self, refer_layer: int = 300):
+    def qubits_variance(self, refer_layer: int = 500):
         """
         This function is plot the relationship between qubits and the variance of the gradient.
         It will order 3 different mode.
