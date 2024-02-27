@@ -384,8 +384,6 @@ class PLOTTING:
             if not isinstance(refer_layer, int) or refer_layer <= 0:
                 raise ValueError('para:{refer_layer} must be a positive integer')
             if refer_layer not in self.layers:
-                print(self.qubits, self.layers)
-                print(refer_layer)
                 raise ValueError('para:{refer_layer} can not be found')
         except ValueError as e:
             print('Error parameter:', e)
