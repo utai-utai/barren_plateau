@@ -9,7 +9,7 @@ class BP:
     """
     This class is used to simulate the barren plateau phenomenon.
     """
-    def __init__(self, modify: bool = False, qubits: list[int] = None, layers: list[int] = None, random_rotation_gate: list[str] = None, samples: int = 100, result: bool = False, save: bool = False):
+    def __init__(self, modify: bool = False, qubits: list[int] = None, layers: list[int] = None, random_rotation_gate: list[str] = None, samples: int = 100, result: bool = True, save: bool = False):
         """
         Initializes a new instance of the Class.
 
@@ -58,7 +58,7 @@ class BP:
         self.result = result
         self.save = save
 
-    def rotation_gate(self, i: int, qubit: int, angle: float = None):
+    def rotation_gate(self, i: int, qubit: int, angle: float = None) -> qml.operation.Operation:
         """
         This function generates the rotation gate in each qubits and layers.
 
@@ -92,7 +92,7 @@ class BP:
             else:
                 return qml.RZ(angle, wires=i)
 
-    def RPQCs(self, qubit: int, layer: int, theta: float):
+    def RPQCs(self, qubit: int, layer: int, theta: float) -> qml.measurements.ExpectationMP:
         """
         The main structure of the random parameterized quantum circuits(RPQCs).
 
@@ -126,7 +126,7 @@ class BP:
                 qml.CZ(wires=[i, i + 1])
         return qml.expval(qml.PauliZ(0) @ qml.PauliZ(1))
 
-    def run(self):
+    def run(self) -> tuple[list[list], list[dict]]:
         """
         This is the main process of this class, which is used to generate data.
 
@@ -169,25 +169,25 @@ class BP:
             results.append(gradients_variance)
         return results, detail
 
-    def get_results(self):
+    def get_results(self) -> list[list]:
         """
-           Return the results. If result=True, then print the variance data.
+           Return the results. If result=True(default), then print the variance data.
 
            Self:
                 param result.
                 func run().
 
            Return:
-                param results: A list of lists, which contain the variance of the gradients.
+                param results: A list of lists(default), which contain the variance of the gradients.
        """
         results, _ = self.run()
         if self.result:
             print(results)
         return results
 
-    def get_detail(self):
+    def get_detail(self) -> list[dict]:
         """
-           Return the detail data. If result=True, then print the detail data.
+           Return the detail data. If result=True(not default), then print the detail data.
 
            Self:
                 param result.
@@ -202,14 +202,14 @@ class BP:
         return detail
 
     @staticmethod
-    def save_detail_data(detail: dict):
+    def save_detail_data(detail: dict, data_base: str = 'barren/detail_data.db'):
         """
         Save the detail data in 'detail_data.db'.
 
         param detail: A list of dictionaries. len(paras)=len(outputs)=len(gradients)=samples.
                 detail = {'modified': bool, 'qubit': int, 'layer': int, 'paras': list[float], 'outputs': list[float], 'gradients': list[float], 'variance': float}.
         """
-        db = sqlite3.connect('barren/detail_data.db')
+        db = sqlite3.connect(data_base)
         cursor = db.cursor()
         cursor.execute('''
             INSERT OR REPLACE INTO details (modified, qubit, layer, paras, outputs, gradients, variance)
