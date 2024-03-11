@@ -9,7 +9,6 @@ class BP:
     """
     This class is used to simulate the barren plateau phenomenon.
     """
-
     def __init__(self, modify: bool = False, qubits: list[int] = None, layers: list[int] = None, num_paras: int = -1, random_rotation_gate: list[str] = None, samples: int = 100, save: bool = False):
         """
         Initializes a new instance of the Class.
