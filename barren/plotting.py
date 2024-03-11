@@ -140,15 +140,14 @@ class PLOTTING:
         """
         self.original_data = []
         self.modified_data = []
-        db = sqlite3.connect('barren/detail_data.db')
+        db = sqlite3.connect('barren/data.db')
         cursor = db.cursor()
-        cursor.execute("SELECT * FROM details")
+        cursor.execute("SELECT * FROM single")
         rows = cursor.fetchall()
         columns = [column[0] for column in cursor.description]
         for r in rows:
             row = dict(zip(columns, r))
             row["paras"] = json.loads(row["paras"])
-            row['outputs'] = json.loads(row['outputs'])
             row['gradients'] = json.loads(row['gradients'])
             if bool(row['modified']):
                 self.modified_data.append(row)
@@ -234,8 +233,8 @@ class PLOTTING:
         if self.saved_data:
             original_data, modified_data = self.use_saved_data()
         elif self.original_data is None:
-            original_data = self.original.get_detail()
-            modified_data = self.modified.get_detail()
+            original_data = self.original.run()
+            modified_data = self.modified.run()
         else:
             original_data = self.original_data
             modified_data = self.modified_data
@@ -312,8 +311,8 @@ class PLOTTING:
         if self.saved_data:
             original_data, modified_data = self.use_saved_data()
         elif self.original_data is None:
-            original_data = self.original.get_detail()
-            modified_data = self.modified.get_detail()
+            original_data = self.original.run()
+            modified_data = self.modified.run()
         else:
             original_data = self.original_data
             modified_data = self.modified_data
@@ -374,8 +373,8 @@ class PLOTTING:
         if self.saved_data:
             original_data, modified_data = self.transfer_detail_to_results()
         elif self.original_data is None:
-            original_data = self.original.get_results()
-            modified_data = self.modified.get_results()
+            original_data = self.original.variance()
+            modified_data = self.modified.variance()
         else:
             original_data = self.original_data
             modified_data = self.modified_data
@@ -425,8 +424,8 @@ class PLOTTING:
         if self.saved_data:
             original_data, modified_data = self.transfer_detail_to_results()
         elif self.original_data is None:
-            original_data = self.original.get_results()
-            modified_data = self.modified.get_results()
+            original_data = self.original.variance()
+            modified_data = self.modified.variance()
         else:
             original_data = self.original_data
             modified_data = self.modified_data

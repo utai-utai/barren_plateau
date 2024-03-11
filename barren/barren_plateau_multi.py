@@ -9,7 +9,8 @@ class BP:
     """
     This class is used to simulate the barren plateau phenomenon.
     """
-    def __init__(self, modify: bool = False, qubits: list[int] = None, layers: list[int] = None, random_rotation_gate: list[str] = None, samples: int = 100, save: bool = False):
+
+    def __init__(self, modify: bool = False, qubits: list[int] = None, layers: list[int] = None, num_paras: int = -1, random_rotation_gate: list[str] = None, samples: int = 100, save: bool = False):
         """
         Initializes a new instance of the Class.
 
@@ -17,6 +18,7 @@ class BP:
             param modify: A boolean flag indicates whether to use the modified circuit.
             param qubits: A list of integers presents simulated qubits.
             param layers: A list of integers presents simulated layers.
+            param num_paras: An integer presents the variables that will be tested.
             param random_rotation_gate: A list of 'x','y' and 'z'.
             param samples: An integer presents the repetitions of the circuits.
             param save: A boolean flag indicates whether to save the detail data.
@@ -34,6 +36,8 @@ class BP:
                 print('Test on {} layers'.format(layers))
             elif not isinstance(layers, list) or not all(isinstance(_, int) for _ in layers):
                 raise ValueError(f"layers={layers} must be a list of integers.")
+            if not isinstance(num_paras, int) or num_paras < -1:
+                raise ValueError(f"num_paras={num_paras} must be a positive integer.")
             if random_rotation_gate is None:
                 random_rotation_gate = ['x', 'y', 'z']
             elif not isinstance(random_rotation_gate, list) or not all(
@@ -50,6 +54,7 @@ class BP:
         self.modify = modify
         self.qubits = qubits
         self.layers = layers
+        self.num_paras = num_paras
         self.random_rotation_gate = random_rotation_gate
         self.samples = samples
         self.save = save
@@ -88,7 +93,7 @@ class BP:
             else:
                 return qml.RZ(angle, wires=i)
 
-    def RPQCs(self, qubit: int, layer: int, theta: float) -> qml.measurements.ExpectationMP:
+    def RPQCs(self, qubit: int, layer: int, theta: list[float]) -> qml.measurements.ExpectationMP:
         """
         The main structure of the random parameterized quantum circuits(RPQCs).
 
@@ -108,10 +113,10 @@ class BP:
         for i in range((2 if self.modify else 1) * qubit):
             qml.Hadamard(wires=i)
         # parametrized layers
-        for _ in range(layer):
+        for la in range(layer):
             for i in range(qubit):
-                if _ == 0 and i == 0:
-                    self.rotation_gate(i, qubit, theta)
+                if la * qubit + i < len(theta):
+                    self.rotation_gate(i, qubit, theta[la * qubit + i])
                 else:
                     self.rotation_gate(i, qubit)
             for i in range(qubit - 1):
@@ -139,15 +144,14 @@ class BP:
                 def circuit(theta):
                     return self.RPQCs(qubit, layer, theta)
 
-                paras = []
                 gradients = []
                 differential_circuit = qml.grad(circuit, argnum=0)
-                for _ in trange(self.samples, desc='qubit={}, depth={}'.format(qubit, layer)):
-                    para = np.random.uniform(0, 2 * np.pi)
-                    paras.append(para)
+                num_para = qubit * layer if self.num_paras == -1 else self.num_paras  # if num_paras is -1, all the parameters will be simulated.
+                for _ in trange(self.samples, desc='qubit={}, layer={}, parameters={}'.format(qubit, layer, num_para)):
+                    para = [np.random.uniform(0, 2 * np.pi) for _ in range(num_para)]
                     gradients.append(differential_circuit(para))
                 gradients_variance.append(np.var(gradients))
-                detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'paras': paras, 'gradients': gradients, 'variance': gradients_variance[-1]})
+                detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'gradients': gradients, 'variance': gradients_variance[-1]})
                 if self.save:
                     self.save_detail_data(detail[-1])
         return detail
@@ -173,16 +177,16 @@ class BP:
         return results
 
     @staticmethod
-    def save_detail_data(detail: dict, data_base: str = 'barren/data.db'):
+    def save_detail_data(detail: dict, data_base: str = 'barren/data_multi.db'):
         """
         Save the detail data in 'data.db'.
 
-        param detail: A list of dictionaries. len(paras)=len(outputs)=len(gradients)=samples.
-                detail = {'modified': bool, 'qubit': int, 'layer': int, 'paras': list[float], 'gradients': list[float], 'variance': float}.
+        param detail: A list of dictionaries. len(gradients)=samples.
+                detail = {'modified': bool, 'qubit': int, 'layer': int, 'gradients': list[float], 'variance': float}.
         """
         db = sqlite3.connect(data_base)
         cursor = db.cursor()
-        cursor.execute('''INSERT OR REPLACE INTO single (modified, qubit, layer, paras, gradients, variance) VALUES (?, ?, ?, ?, ?, ?)''',
-                       (detail['modified'], detail['qubit'], detail['layer'], json.dumps(detail['paras']), json.dumps(detail['gradients']), detail['variance']))
+        cursor.execute('''INSERT OR REPLACE INTO multi (modified, qubit, layer, gradients, variance) VALUES (?, ?, ?, ?, ?)''',
+                       (detail['modified'], detail['qubit'], detail['layer'], json.dumps(detail['gradients']), detail['variance']))
         db.commit()
         db.close()
