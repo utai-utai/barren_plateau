@@ -173,7 +173,7 @@ class BP:
         return results
 
     @staticmethod
-    def save_detail_data(detail: dict, data_base: str = 'barren/data.db'):
+    def save_detail_data(detail: dict, data_base: str = 'data.db'):
         """
         Save the detail data in 'data.db'.
 

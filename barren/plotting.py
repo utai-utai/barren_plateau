@@ -127,7 +127,7 @@ class PLOTTING:
 
     def use_saved_data(self):
         """
-        This function is used to transfer the data in 'detail_data.db' to a list of dictionaries.
+        This function is used to transfer the data in 'data.db' to a list of dictionaries.
         It will transfer the para{qubits} and para{layers} that base on the 'detail_data.db'.
 
         Self:
@@ -140,7 +140,7 @@ class PLOTTING:
         """
         self.original_data = []
         self.modified_data = []
-        db = sqlite3.connect('barren/data.db')
+        db = sqlite3.connect('data.db')
         cursor = db.cursor()
         cursor.execute("SELECT * FROM single")
         rows = cursor.fetchall()
