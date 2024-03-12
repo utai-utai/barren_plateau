@@ -173,9 +173,9 @@ class BP:
         return results
 
     @staticmethod
-    def save_detail_data(detail: dict, data_base: str = 'data.db'):
+    def save_detail_data(detail: dict, data_base: str = 'barren/data.db'):
         """
-        Save the detail data in 'data.db'.
+        Save the detail data in the table:single of 'barren/data.db'.
 
         param detail: A list of dictionaries. len(paras)=len(outputs)=len(gradients)=samples.
                 detail = {'modified': bool, 'qubit': int, 'layer': int, 'paras': list[float], 'gradients': list[float], 'variance': float}.

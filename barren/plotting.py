@@ -140,7 +140,7 @@ class PLOTTING:
         """
         self.original_data = []
         self.modified_data = []
-        db = sqlite3.connect('data.db')
+        db = sqlite3.connect('barren/data.db')
         cursor = db.cursor()
         cursor.execute("SELECT * FROM single")
         rows = cursor.fetchall()
