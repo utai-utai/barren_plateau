@@ -235,8 +235,8 @@ class BPS:
                     return self.RPQCs(qubit, layer, theta)
 
                 def cost(parameters):
-                    o = circuit(parameters)
-                    return (o - target) ** 2
+                    expectation = circuit(parameters)
+                    return (expectation - target) ** 2
 
                 for epoch in trange(epochs, desc='qubit={}, layer={}'.format(qubit, layer)):
                     output.append(circuit(params).item())
