@@ -198,7 +198,8 @@ class BPS:
                     param target: A float presents established value from -0.1 to 0.1.
                     param epochs: An integer presents the epochs which need to be simulated.
                     param lr: A float presents learning rate.
-                    param layer_decrease_rate: A float presents the speed of decrease rate of the modified circuit.
+                    param layer_decrease_rate: A positive float presents the speed of decrease rate of the modified circuit.
+                                                If the input is a negative value, it will not work.
 
                 Self:
                     param modify, qubits, layers, num_paras.
