@@ -5,7 +5,7 @@ import pennylane as qml
 from tqdm import trange
 
 
-class BP:
+class BPS:
     """
     This class is used to simulate the barren plateau phenomenon.
     """
@@ -36,7 +36,7 @@ class BP:
             elif not isinstance(layers, list) or not all(isinstance(_, int) for _ in layers):
                 raise ValueError(f"layers={layers} must be a list of integers.")
             if not isinstance(num_paras, int) or num_paras < -1:
-                raise ValueError(f"num_paras={num_paras} must be a positive integer.")
+                raise ValueError(f"num_paras={num_paras} must be an integer.")
             if random_rotation_gate is None:
                 random_rotation_gate = ['x', 'y', 'z']
             elif not isinstance(random_rotation_gate, list) or not all(
@@ -127,7 +127,7 @@ class BP:
         This is the main process of this class, which is used to generate data.
 
         Self:
-            param modify, qubits, layers, samples, save.
+            param modify, qubits, layers, num_paras, samples, save.
             func RPQCs(), save_detail_data().
 
         Return:
@@ -189,3 +189,63 @@ class BP:
                        (detail['modified'], detail['qubit'], detail['layer'], json.dumps(detail['gradients']), detail['variance']))
         db.commit()
         db.close()
+
+    def train(self, target: float = 0.1, epochs: int = 100, lr: float = 0.05, layer_decrease_rate: float = -0.5):
+        """
+                Training a simple RPQCs with established value(from -0.1~0.1).
+
+                Args:
+                    param target: A float presents established value from -0.1 to 0.1.
+                    param epochs: An integer presents the epochs which need to be simulated.
+                    param lr: A float presents learning rate.
+                    param layer_decrease_rate: A float presents the speed of decrease rate of the modified circuit.
+
+                Self:
+                    param modify, qubits, layers, num_paras.
+                    func RPQCs.
+
+                Return:
+                    param details: A list of dictionaries. len(output)=len(cost_function)=epochs
+                """
+        try:
+            if not isinstance(target, float) or abs(target) > 0.1:
+                raise ValueError(f'target={target} must be a float from -0.1 to 0.1.')
+            if not isinstance(epochs, int) or epochs <= 0:
+                raise ValueError(f"epochs={epochs} must be a positive integer.")
+            if not isinstance(lr, float) or lr <= 0 or lr >= 1:
+                raise ValueError(f"lr={lr} must be a float from 0 to 1.")
+            if not isinstance(layer_decrease_rate, float) or layer_decrease_rate < -1 or layer_decrease_rate >= 1:
+                raise ValueError(f"layer_decrease_rate={layer_decrease_rate} must be a float from 0 to 1.")
+        except ValueError as e:
+            print('Error initial parameter:', e)
+            raise
+
+        detail = []
+        for qubit in self.qubits:
+            for layer in self.layers:
+                output = []
+                cost_function = []
+                num_para = qubit * layer if self.num_paras == -1 else self.num_paras  # if num_paras is -1, all the parameters will be simulated.
+                params = qml.numpy.array([2 * np.pi * np.random.randint(0, 1) for _ in range(num_para)], requires_grad=True)
+                dev = qml.device("default.qubit", wires=(2 if self.modify else 1) * qubit)
+
+                @qml.qnode(dev)
+                def circuit(theta):
+                    return self.RPQCs(qubit, layer, theta)
+
+                def cost(parameters):
+                    o = circuit(parameters)
+                    return (o - target) ** 2
+
+                for epoch in trange(epochs, desc='qubit={}, layer={}'.format(qubit, layer)):
+                    output.append(circuit(params).item())
+                    cost_function.append(cost(params).item())
+                    opt = qml.AdamOptimizer(stepsize=lr)
+                    params = opt.step(cost, params)
+                    if layer_decrease_rate > 0 and epoch % int(epochs*layer_decrease_rate) == 0:
+                        split = int(num_para * layer_decrease_rate * (epoch // int(epochs * layer_decrease_rate)))
+                        fixed_params = qml.numpy.array(params[:split], requires_grad=False)
+                        trainable_params = qml.numpy.array(params[split:], requires_grad=True)
+                        params = qml.numpy.concatenate([fixed_params, trainable_params])
+                detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'target': target, 'output': output, 'cost': cost_function})
+        return detail
