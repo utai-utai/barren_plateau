@@ -224,29 +224,29 @@ class BPS:
         detail = []
         for qubit in self.qubits:
             for layer in self.layers:
-                output = []
+                outputs = []
                 cost_function = []
                 num_para = qubit * layer if self.num_paras == -1 else self.num_paras  # if num_paras is -1, all the parameters will be simulated.
                 params = qml.numpy.array([2 * np.pi * np.random.randint(0, 1) for _ in range(num_para)], requires_grad=True)
                 dev = qml.device("default.qubit", wires=(2 if self.modify else 1) * qubit)
+                opt = qml.AdamOptimizer(stepsize=lr)
 
                 @qml.qnode(dev)
                 def circuit(theta):
                     return self.RPQCs(qubit, layer, theta)
 
-                def cost(parameters):
-                    expectation = circuit(parameters)
-                    return (expectation - target) ** 2
+                def cost(value):
+                    return (value - target) ** 2
 
                 for epoch in trange(epochs, desc='qubit={}, layer={}'.format(qubit, layer)):
-                    output.append(circuit(params).item())
-                    cost_function.append(cost(params).item())
-                    opt = qml.AdamOptimizer(stepsize=lr)
-                    params = opt.step(cost, params)
+                    output = circuit(params).item()
+                    outputs.append(output)
+                    cost_function.append(cost(output))
+                    params = opt.step(lambda p: cost(circuit(p)), params)
                     if layer_decrease_rate > 0 and epoch % int(epochs*layer_decrease_rate) == 0:
                         split = int(num_para * layer_decrease_rate * (epoch // int(epochs * layer_decrease_rate)))
                         fixed_params = qml.numpy.array(params[:split], requires_grad=False)
                         trainable_params = qml.numpy.array(params[split:], requires_grad=True)
                         params = qml.numpy.concatenate([fixed_params, trainable_params])
-                detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'target': target, 'output': output, 'cost': cost_function})
+                detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'target': target, 'output': outputs, 'cost': cost_function})
         return detail
