@@ -5,7 +5,7 @@ import pennylane as qml
 from tqdm import trange
 
 
-class BPS:
+class BPs:
     """
     This class is used to simulate the barren plateau phenomenon.
     """
