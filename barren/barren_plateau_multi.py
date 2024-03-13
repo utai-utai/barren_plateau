@@ -190,7 +190,7 @@ class BPs:
         db.commit()
         db.close()
 
-    def train(self, target: float = 0.1, epochs: int = 100, lr: float = 0.05, layer_decrease_rate: float = -0.5):
+    def train(self, target: float = 0.1, epochs: int = 100, lr: float = 0.05, layer_decrease_rate: float = -0.5) -> list[dict]:
         """
                 Training a simple RPQCs with established value(from -0.1~0.1).
 
