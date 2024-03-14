@@ -3,7 +3,7 @@ import sqlite3
 import numpy as np
 import pennylane as qml
 from tqdm import trange
-from setup_db import save_data
+from .setup_db import save_data
 
 
 class BP:

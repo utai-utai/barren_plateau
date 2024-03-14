@@ -1,7 +1,10 @@
 import json
-import sqlite3
 import os
-from . import DB_PATH
+import sqlite3
+
+DB_PATH = 'barren/data.db'
+if not os.path.exists(DB_PATH):
+    raise FileNotFoundError(f"Database path '{DB_PATH}' does not exist.")
 
 
 def initialize_database(table: str):
