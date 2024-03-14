@@ -228,7 +228,7 @@ class BPs:
                     outputs.append(output)
                     cost_function.append(cost(output))
                     params = opt.step(lambda p: cost(circuit(p)), params)
-                    if layer_decrease_rate > 0 and epoch % int(epochs*layer_decrease_rate) == 0:
+                    if layer_decrease_rate > 0 and epoch % int(epochs * layer_decrease_rate) == 0:
                         split = int(num_para * layer_decrease_rate * (epoch // int(epochs * layer_decrease_rate)))
                         fixed_params = qml.numpy.array(params[:split], requires_grad=False)
                         trainable_params = qml.numpy.array(params[split:], requires_grad=True)
