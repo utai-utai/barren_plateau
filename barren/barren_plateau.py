@@ -3,6 +3,7 @@ import sqlite3
 import numpy as np
 import pennylane as qml
 from tqdm import trange
+from setup_db import save_data
 
 
 class BP:
@@ -149,7 +150,7 @@ class BP:
                 gradients_variance.append(np.var(gradients))
                 detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'paras': paras, 'gradients': gradients, 'variance': gradients_variance[-1]})
                 if self.save:
-                    self.save_detail_data(detail[-1])
+                    save_data(detail[-1], 'single')
         return detail
 
     def variance(self) -> list[list]:
@@ -171,18 +172,3 @@ class BP:
                 result.extend(i['variance'] for i in self.run() if i.get('qubit') == qubit and i.get('layer') == layer)
             results.append(result)
         return results
-
-    @staticmethod
-    def save_detail_data(detail: dict, data_base: str = 'barren/data.db'):
-        """
-        Save the detail data in the table:single of 'barren/data.db'.
-
-        param detail: A list of dictionaries. len(paras)=len(outputs)=len(gradients)=samples.
-                detail = {'modified': bool, 'qubit': int, 'layer': int, 'paras': list[float], 'gradients': list[float], 'variance': float}.
-        """
-        db = sqlite3.connect(data_base)
-        cursor = db.cursor()
-        cursor.execute('''INSERT OR REPLACE INTO single (modified, qubit, layer, paras, gradients, variance) VALUES (?, ?, ?, ?, ?, ?)''',
-                       (detail['modified'], detail['qubit'], detail['layer'], json.dumps(detail['paras']), json.dumps(detail['gradients']), detail['variance']))
-        db.commit()
-        db.close()

@@ -3,6 +3,7 @@ import sqlite3
 import numpy as np
 import pennylane as qml
 from tqdm import trange
+from setup_db import save_data
 
 
 class BPs:
@@ -152,7 +153,7 @@ class BPs:
                 gradients_variance.append(np.var(gradients))
                 detail.append({'modified': self.modify, 'qubit': qubit, 'layer': layer, 'gradients': gradients, 'variance': gradients_variance[-1]})
                 if self.save:
-                    self.save_detail_data(detail[-1])
+                    save_data(detail[-1], 'multi')
         return detail
 
     def variance(self) -> list[list]:
@@ -174,21 +175,6 @@ class BPs:
                 result.extend(i['variance'] for i in self.run() if i.get('qubit') == qubit and i.get('layer') == layer)
             results.append(result)
         return results
-
-    @staticmethod
-    def save_detail_data(detail: dict, data_base: str = 'barren/data.db'):
-        """
-        Save the detail data in the table:multi of 'barren/data.db'.
-
-        param detail: A list of dictionaries. len(gradients)=samples.
-                detail = {'modified': bool, 'qubit': int, 'layer': int, 'gradients': list[float], 'variance': float}.
-        """
-        db = sqlite3.connect(data_base)
-        cursor = db.cursor()
-        cursor.execute('''INSERT OR REPLACE INTO multi (modified, qubit, layer, gradients, variance) VALUES (?, ?, ?, ?, ?)''',
-                       (detail['modified'], detail['qubit'], detail['layer'], json.dumps(detail['gradients']), detail['variance']))
-        db.commit()
-        db.close()
 
     def train(self, target: float = 0.1, epochs: int = 100, lr: float = 0.05, layer_decrease_rate: float = -0.5) -> list[dict]:
         """
