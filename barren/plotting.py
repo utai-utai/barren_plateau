@@ -2,6 +2,7 @@ import json
 import sqlite3
 import numpy as np
 from tqdm import trange
+import scienceplots
 import matplotlib.pyplot as plt
 from .barren_plateau import BP
 
@@ -10,7 +11,7 @@ class PLOTTING:
     """
     This class is used to plot the results of the barren plateau.
     """
-    def __init__(self, original_data: list = None, modified_data: list = None, saved_data: bool = False, qubits: list[int] = None, layers: list[int] = None, selected_qubits: list[int] = None, selected_layers: list[int] = None, random_rotation_gate: list[str] = None, samples: int = 100, line_width: int = 3, bar_width: float = 0.01, font_size: int = 30, legend_size: int = 15, label_size: int = 30, absolute: bool = True):
+    def __init__(self, original_data: list = None, modified_data: list = None, saved_data: bool = False, qubits: list[int] = None, layers: list[int] = None, selected_qubits: list[int] = None, selected_layers: list[int] = None, random_rotation_gate: list[str] = None, samples: int = 100, line_width: int = 3, bar_width: float = 0.01, font_size: int = 30, legend_size: int = 25, label_size: int = 30, absolute: bool = True):
         """
         Initializes a new instance of the Class.
 
@@ -91,14 +92,14 @@ class PLOTTING:
         self.original = BP(modify=False, qubits=qubits, layers=layers, random_rotation_gate=random_rotation_gate)
         self.modified = BP(modify=True, qubits=qubits, layers=layers, random_rotation_gate=random_rotation_gate)
 
-        # plt.style.use(['science', 'no-latex'])
-        plt.tick_params(width=2, labelsize=label_size)
+        plt.style.use(['science', 'no-latex'])
         self.selected_qubits = selected_qubits
         self.selected_layers = selected_layers
         self.line_width = line_width
         self.bar_width = bar_width
         self.font_size = font_size
         self.legend_size = legend_size
+        self.label_size = label_size
         self.absolute = absolute
 
     @staticmethod
@@ -394,15 +395,18 @@ class PLOTTING:
         qubits = np.array(self.qubits)
 
         # Plot the straight line fit to the semi-logy
-        plt.semilogy(qubits, original_variance, "o", label='Original')
+        plt.figure(figsize=(16, 9))
+        plt.semilogy(qubits, original_variance, "o", label='Original Method')
         plt.semilogy(qubits, np.exp(p[0] * qubits + p[1]), "o-.", label="Original:Slope {:3.2f}".format(p[0]), linewidth=self.line_width)
-        plt.semilogy(qubits, modified_variance, 'o', label="Modified")
+        plt.semilogy(qubits, modified_variance, 'o', label="Modified Method")
         plt.semilogy(qubits, np.exp(q[0] * qubits + q[1]), "o-.", label="Modified:Slope {:3.2f}".format(q[0]), linewidth=self.line_width)
         plt.xlabel(r"N Qubits", fontsize=self.font_size)
-        plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ variance", fontsize=self.font_size)
+        plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ variance", fontsize=self.font_size, fontweight='bold')
         plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
-        plt.show()
+        plt.tick_params(axis='both', labelsize=self.label_size, width=3)
+        plt.savefig('Experiment_1_1.png', dpi=300)
+        # plt.show()
 
     def layers_variance(self):
         """
@@ -431,12 +435,21 @@ class PLOTTING:
             modified_data = self.modified_data
 
         # Plot the line for each qubit
+        plt.figure(figsize=(16, 9))
         for index, qubit in enumerate(self.qubits):
-            plt.plot(self.layers, original_data[index], marker='*', label='original {} qubits'.format(qubit), linewidth=self.line_width)
+            if index == 0:
+                plt.plot(self.layers, original_data[index], marker='*', label='Original Method', linewidth=self.line_width, color='green')
+            else:
+                plt.plot(self.layers, original_data[index], marker='*', linewidth=self.line_width, color='green', alpha=0.91-0.07*index)
         for index, qubit in enumerate(self.qubits):
-            plt.plot(self.layers, modified_data[index], marker='o', label='modified {} qubits'.format(qubit), linewidth=self.line_width, color='red')
-        plt.xlabel(r"Layers", fontsize=self.font_size)
-        plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ variance", fontsize=self.font_size)
-        plt.legend(bbox_to_anchor=(0.5, 1.15), loc='upper center', ncol=6, fontsize=self.legend_size)
+            if index == 0:
+                plt.plot(self.layers, modified_data[index], marker='o', label='Modified Method', linewidth=self.line_width, color='red')
+            else:
+                plt.plot(self.layers, modified_data[index], marker='o', linewidth=self.line_width, color='red', alpha=0.91-0.07*index)
+        plt.xlabel(r"Layers", fontsize=self.font_size, fontweight='bold')
+        plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ variance", fontsize=self.font_size, fontweight='bold')
+        plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
-        plt.show()
+        plt.tick_params(axis='both', labelsize=self.label_size, width=3)
+        # plt.savefig('Experiment_1_2.png', dpi=300)
+        # plt.show()
