@@ -526,7 +526,7 @@ class PLOTTING:
         plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
         plt.tick_params(axis='both', labelsize=self.label_size, width=3)
-        plt.savefig('Experiment_2_1.png', dpi=300)
+        plt.savefig('Experiment_2_2.png', dpi=300)
         # plt.show()
 
     def ex1(self, refer_layer: int = 500):
@@ -590,5 +590,5 @@ class PLOTTING:
         plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
         plt.tick_params(axis='both', labelsize=self.label_size, width=3)
-        plt.savefig('Experiment_1_1.png', dpi=300)
+        plt.savefig('Experiment_2_1.png', dpi=300)
         # plt.show()
