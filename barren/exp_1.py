@@ -64,7 +64,7 @@ plt.semilogy(qubits, np.exp(p[0] * qubits + p[1]), "o-.", label="Unitary 2-desig
 plt.semilogy(qubits, modified_variance, 'o', label="Unitary 1-design")
 plt.semilogy(qubits, np.exp(q[0] * qubits + q[1]), "o-.", label="Unitary 1-design:Slope {:3.2f}".format(q[0]), linewidth=line_width)
 plt.xlabel(r"N Qubits", fontsize=font_size)
-plt.ylabel(r"Variance", fontsize=font_size, fontweight='bold')
+plt.ylabel(r"$\partial_k E$ Variance", fontsize=font_size, fontweight='bold')
 plt.legend(fontsize=legend_size)
 plt.yscale('log')
 plt.tick_params(axis='both', labelsize=label_size, width=3)
