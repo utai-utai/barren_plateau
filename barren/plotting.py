@@ -522,7 +522,7 @@ class PLOTTING:
             else:
                 plt.plot(self.layers, proposed_data[index], marker='x', linewidth=self.line_width, color='purple', alpha=0.91-0.07*index)
         plt.xlabel(r"Layers", fontsize=self.font_size, fontweight='bold')
-        plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ Variance", fontsize=self.font_size, fontweight='bold')
+        plt.ylabel(r"Variance of $\partial \theta_{1, 1} E$", fontsize=self.font_size, fontweight='bold')
         plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
         plt.tick_params(axis='both', labelsize=self.label_size, width=3)
@@ -586,7 +586,7 @@ class PLOTTING:
         plt.semilogy(qubits, np.exp(q[0] * qubits + q[1]), "o-.", label="Unitary 1-design:Slope {:3.2f}".format(q[0]), linewidth=self.line_width, color='red')
         plt.semilogy(qubits, proposed_variance, 'o-', label='Proposed Structure', linewidth=self.line_width, color='purple')
         plt.xlabel(r"N Qubits", fontsize=self.font_size)
-        plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ Variance", fontsize=self.font_size, fontweight='bold')
+        plt.ylabel(r"Variance of $\partial \theta_{1, 1} E$", fontsize=self.font_size, fontweight='bold')
         plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
         plt.tick_params(axis='both', labelsize=self.label_size, width=3)
