@@ -405,8 +405,7 @@ class PLOTTING:
         plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
         plt.tick_params(axis='both', labelsize=self.label_size, width=3)
-        plt.savefig('Experiment_1_1.png', dpi=300)
-        # plt.show()
+        plt.show()
 
     def layers_variance(self):
         """
@@ -451,5 +450,4 @@ class PLOTTING:
         plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
         plt.tick_params(axis='both', labelsize=self.label_size, width=3)
-        plt.savefig('Experiment_1_2.png', dpi=300)
-        # plt.show()
+        plt.show()
