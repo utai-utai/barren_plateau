@@ -7,4 +7,12 @@ from .experiment import ex1, ex2, ex3
 
 version = 1.0
 
-__all__ = ['BP', 'BPs', 'PLOTTING', 'plot_qubit_gradient', 'plot_qubits_variance', 'plot_layers_variance', 'plot_results', 'initialize_database', 'bp', 'bps', 'train', 'ex1', 'ex2', 'ex3']
+__all__ = ['BP', 'bp',
+           'BPs', 'bps',
+           'PLOTTING', 'train',
+           'plot_qubit_gradient',
+           'plot_qubits_variance',
+           'plot_layers_variance',
+           'plot_results',
+           'initialize_database',
+           'ex1', 'ex2', 'ex3']
