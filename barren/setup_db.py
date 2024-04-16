@@ -44,7 +44,7 @@ def initialize_database(table: str):
     else:
         assert False, f"Unknown table name: {table}."
 
-    # 连接到SQLite数据库，如果数据库不存在，会自动创建
+    # link to SQLite, if it isn't exist: create it
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(create_table_sql)
