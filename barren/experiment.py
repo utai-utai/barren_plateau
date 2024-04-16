@@ -2101,7 +2101,7 @@ def ex3(save: bool = False):
 
     plt.style.use(['science', 'no-latex'])
     fig, axs = plt.subplots(4, 3, figsize=(25, 25))
-    plt.subplots_adjust(hspace=0.1, wspace=0.15)  # Reduce the spacing between subplots by adjusting these parameters
+    plt.subplots_adjust(hspace=0.1, wspace=0.25)  # Reduce the spacing between subplots by adjusting these parameters
 
     for i in range(4):
         # 1. Epochs-Expectation

@@ -108,3 +108,22 @@ def save_data(data: dict, table: str):
     cursor.execute(sql_statement, paras)
     db.commit()
     db.close()
+
+
+def read_data():
+    original_data = []
+    modified_data = []
+    db = sqlite3.connect(DB_PATH)
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM single")
+    rows = cursor.fetchall()
+    columns = [column[0] for column in cursor.description]
+    for r in rows:
+        row = dict(zip(columns, r))
+        row["paras"] = json.loads(row["paras"])
+        row['gradients'] = json.loads(row['gradients'])
+        if bool(row['modified']):
+            modified_data.append(row)
+        else:
+            original_data.append(row)
+    return original_data, modified_data

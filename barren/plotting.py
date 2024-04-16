@@ -1,10 +1,10 @@
-import json
-import sqlite3
-import numpy as np
-from tqdm import trange
-import scienceplots
 import matplotlib.pyplot as plt
+import numpy as np
+from scipy.stats import gaussian_kde
+from tqdm import trange
+
 from .barren_plateau import BP
+from .setup_db import read_data
 
 
 class PLOTTING:
@@ -92,7 +92,6 @@ class PLOTTING:
         self.original = BP(modify=False, qubits=qubits, layers=layers, random_rotation_gate=random_rotation_gate)
         self.modified = BP(modify=True, qubits=qubits, layers=layers, random_rotation_gate=random_rotation_gate)
 
-        plt.style.use(['science', 'no-latex'])
         self.selected_qubits = selected_qubits
         self.selected_layers = selected_layers
         self.line_width = line_width
@@ -102,8 +101,7 @@ class PLOTTING:
         self.label_size = label_size
         self.absolute = absolute
 
-    @staticmethod
-    def relist(data: list[dict], refer_key: str):
+    def relist(self, refer_key: str):
         """
         This function is used to count the occurrence of qubits and layers.
 
@@ -121,7 +119,7 @@ class PLOTTING:
             print('Error parameter:', e)
             raise
         values = []
-        for i in data:
+        for i in self.original_data:
             values.append(i[refer_key])
         values = sorted(set(values))
         return values
@@ -139,23 +137,9 @@ class PLOTTING:
             param original_data: A list of dictionaries, which contains the detail data about original circuit.
             param modified_data: A list of dictionaries, which contains the detail data about modified circuit.
         """
-        self.original_data = []
-        self.modified_data = []
-        db = sqlite3.connect('barren/data.db')
-        cursor = db.cursor()
-        cursor.execute("SELECT * FROM single")
-        rows = cursor.fetchall()
-        columns = [column[0] for column in cursor.description]
-        for r in rows:
-            row = dict(zip(columns, r))
-            row["paras"] = json.loads(row["paras"])
-            row['gradients'] = json.loads(row['gradients'])
-            if bool(row['modified']):
-                self.modified_data.append(row)
-            else:
-                self.original_data.append(row)
-        self.qubits = self.relist(self.original_data, 'qubit')
-        self.layers = self.relist(self.original_data, 'layer')
+        self.original_data, self.modified_data = read_data()
+        self.qubits = self.relist('qubit')
+        self.layers = self.relist('layer')
         return self.original_data, self.modified_data
 
     def transfer_detail_to_results(self):
@@ -204,7 +188,7 @@ class PLOTTING:
 
     def qubit_output(self, scatter: bool = True, bar: bool = True):
         """
-        This function is plot the relationship between qubits and outputs.
+        This function plots the relationship between qubits and outputs.
         It will order 3 different mode.
             1. If para{saved_data} is True, it will use the saved data.
             2. If para{original_data} or para{modified_data} is not None, it will use the offered data.
@@ -282,7 +266,7 @@ class PLOTTING:
 
     def qubit_gradient(self, scatter: bool = True, bar: bool = True):
         """
-        This function is plot the relationship between qubits and gradients.
+        This function plots the relationship between qubits and gradients.
         It will order 3 different mode.
             1. If param{saved_data} is True, it will use the saved data.
             2. If param{original_data} or param{modified_data} is not None, it will use the offered data.
@@ -353,7 +337,7 @@ class PLOTTING:
 
     def qubits_variance(self, refer_layer: int = 500):
         """
-        This function is plot the relationship between qubits and the variance of the gradient.
+        This function plots the relationship between qubits and the variance of the gradient.
         It will order 3 different mode.
             1. If para{saved_data} is True, it will use the saved data.
             2. If para{original_data} or para{modified_data} is not None, it will use the offered data.
@@ -396,10 +380,10 @@ class PLOTTING:
 
         # Plot the straight line fit to the semi-logy
         plt.figure(figsize=(16, 9))
-        plt.semilogy(qubits, original_variance, "o", label='Unitary 2-design')
-        plt.semilogy(qubits, np.exp(p[0] * qubits + p[1]), "o-.", label="Unitary 2-design:Slope {:3.2f}".format(p[0]), linewidth=self.line_width)
-        plt.semilogy(qubits, modified_variance, 'o', label="Unitary 1-design")
-        plt.semilogy(qubits, np.exp(q[0] * qubits + q[1]), "o-.", label="Unitary 1-design:Slope {:3.2f}".format(q[0]), linewidth=self.line_width)
+        plt.semilogy(qubits, original_variance, "o", label='Barren Plateau')
+        plt.semilogy(qubits, np.exp(p[0] * qubits + p[1]), "o-.", label="Barren Plateau:Slope {:3.2f}".format(p[0]), linewidth=self.line_width)
+        plt.semilogy(qubits, modified_variance, 'o', label="Modified")
+        plt.semilogy(qubits, np.exp(q[0] * qubits + q[1]), "o-.", label="Modified:Slope {:3.2f}".format(q[0]), linewidth=self.line_width)
         plt.xlabel(r"N Qubits", fontsize=self.font_size)
         plt.ylabel(r"$\langle \partial \theta_{1, 1} E\rangle$ variance", fontsize=self.font_size, fontweight='bold')
         plt.legend(fontsize=self.legend_size)
@@ -409,21 +393,21 @@ class PLOTTING:
 
     def layers_variance(self):
         """
-                This function is plot the relationship between layers and the variance of the gradient.
-                It will order 3 different mode.
-                    1. If para{saved_data} is True, it will use the saved data.
-                    2. If para{original_data} or para{modified_data} is not None, it will use the offered data.
-                    3. Else, it will use the data by class BP
+        This function plots the relationship between layers and the variance of the gradient.
+        It will order 3 different mode.
+            1. If para{saved_data} is True, it will use the saved data.
+            2. If para{original_data} or para{modified_data} is not None, it will use the offered data.
+            3. Else, it will use the data by class BP
 
-                Self:
-                    param saved_data, qubits, layers.
-                    class original(BP), modified(BP).
-                    plot param line_width, font_size, legend_size.
-                    func use_saved_data(), transfer_detail_to_results().
+        Self:
+            param saved_data, qubits, layers.
+            class original(BP), modified(BP).
+            plot param line_width, font_size, legend_size.
+            func use_saved_data(), transfer_detail_to_results().
 
-                Return:
-                    plt.show()
-                """
+        Return:
+            plt.show()
+        """
         if self.saved_data:
             original_data, modified_data = self.transfer_detail_to_results()
         elif self.original_data is None:
@@ -437,12 +421,12 @@ class PLOTTING:
         plt.figure(figsize=(16, 9))
         for index, qubit in enumerate(self.qubits):
             if index == 0:
-                plt.plot(self.layers, original_data[index], marker='*', label='Unitary 2-design', linewidth=self.line_width, color='green')
+                plt.plot(self.layers, original_data[index], marker='*', label='Barren Plateau', linewidth=self.line_width, color='green')
             else:
                 plt.plot(self.layers, original_data[index], marker='*', linewidth=self.line_width, color='green', alpha=0.91-0.07*index)
         for index, qubit in enumerate(self.qubits):
             if index == 0:
-                plt.plot(self.layers, modified_data[index], marker='o', label='Unitary 1-design', linewidth=self.line_width, color='red')
+                plt.plot(self.layers, modified_data[index], marker='o', label='Modified', linewidth=self.line_width, color='red')
             else:
                 plt.plot(self.layers, modified_data[index], marker='o', linewidth=self.line_width, color='red', alpha=0.91-0.07*index)
         plt.xlabel(r"Layers", fontsize=self.font_size, fontweight='bold')
@@ -450,4 +434,56 @@ class PLOTTING:
         plt.legend(fontsize=self.legend_size)
         plt.yscale('log')
         plt.tick_params(axis='both', labelsize=self.label_size, width=3)
+        plt.show()
+
+
+def plot_simple_datas(original: list = None, modified: list = None, name: str = None, scatter: bool = True, bar: bool = True):
+    """
+    This function plots simple data in scatter and bar.
+
+    Arg:
+        param data_0 and data_1: A list * 2
+        param scatter: A boolean flag indicates whether to plot scatter.
+        param bar: A boolean flag indicates whether to plot bar.
+
+    Return:
+        plt.show()
+    """
+    line_width: int = 3
+    bar_width: float = 0.01
+    font_size: int = 30
+    legend_size: int = 25
+    label_size: int = 30
+
+    if scatter:
+        steps = len(original)
+        plt.scatter(range(steps), original, marker='*', color='green', label='Barren Plateau')
+        plt.scatter(range(steps), modified, marker='.', color='red', label='Modified')
+        plt.xlabel("Epochs", fontsize=font_size)
+        plt.ylabel(rf"{name}", fontsize=font_size)
+        plt.legend(fontsize=legend_size)
+        plt.tick_params(width=2, labelsize=label_size)
+        plt.show()
+
+    if bar:
+        # Plot the bar and KDE carve of original data
+        counts_orig, bin_edges_orig = np.histogram(original, bins=np.arange(-1, 1.01, bar_width), density=False)
+        bin_centers_orig = (bin_edges_orig[:-1] + bin_edges_orig[1:]) / 2
+        kde_orig = gaussian_kde(original)
+        kde_values_orig = kde_orig(np.arange(-1, 1 + bar_width, bar_width))
+        plt.bar(bin_centers_orig, counts_orig / len(original), width=bar_width, alpha=0.6, color='blue')
+        plt.plot(np.arange(-1, 1 + bar_width, bar_width), kde_values_orig / sum(kde_values_orig), label='Unitary 2-design', color='green', linewidth=line_width, alpha=0.8)
+
+        # Plot the bar and KDE carve of modified data
+        counts_mod, bin_edges_mod = np.histogram(modified, bins=np.arange(-1, 1.01, bar_width), density=False)
+        bin_centers_mod = (bin_edges_mod[:-1] + bin_edges_mod[1:]) / 2
+        kde_mod = gaussian_kde(modified)
+        kde_values_mod = kde_mod(np.arange(-1, 1 + bar_width, bar_width))
+        plt.bar(bin_centers_mod, counts_mod / len(modified), width=bar_width, alpha=0.6, color='orange')
+        plt.plot(np.arange(-1, 1 + bar_width, bar_width), kde_values_mod / sum(kde_values_mod), label='Proposed Structure', color='red', linewidth=line_width, alpha=0.8)
+
+        plt.xlabel(rf"{name}", fontsize=font_size)
+        plt.ylabel('Frequency', fontsize=font_size)
+        plt.legend(fontsize=legend_size)
+        plt.tick_params(width=2, labelsize=label_size)
         plt.show()
