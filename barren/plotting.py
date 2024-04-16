@@ -36,47 +36,47 @@ class PLOTTING:
         """
         try:
             if not isinstance(saved_data, bool):
-                raise ValueError("para:{saved_data} must be a bool.")
+                raise ValueError(f"saved_data={saved_data} must be a bool.")
             if saved_data is False:
                 if not isinstance(original_data, list):
-                    raise ValueError("para:{original_data} must be a list.")
+                    raise ValueError(f"original_data={original_data} must be a list.")
                 if not isinstance(modified_data, list):
-                    raise ValueError("para:{modified_data} must be a list.")
+                    raise ValueError(f"modified_data={modified_data} must be a list.")
             if qubits is None:
                 qubits = [2, 4, 6]
             elif not isinstance(qubits, list) or not all(isinstance(q, int) for q in qubits):
-                raise ValueError("para:{qubits} must be a list of integers.")
+                raise ValueError(f"qubits={qubits} must be a list of integers.")
             if layers is None:
                 layers = [5, 10, 20, 50]
             elif not isinstance(layers, list) or not all(isinstance(_, int) for _ in layers):
-                raise ValueError("para:{layers} must be a list of integers.")
+                raise ValueError(f"layers={layers} must be a list of integers.")
             if selected_qubits is None:
                 selected_qubits = [2, 4, 6]
             elif not isinstance(selected_qubits, list) or not all(isinstance(q, int) for q in selected_qubits):
-                raise ValueError("para:{selected_qubits} must be a list of integers.")
+                raise ValueError(f"selected_qubits={selected_qubits} must be a list of integers.")
             if selected_layers is None:
                 selected_layers = [5, 10, 20, 50]
             elif not isinstance(selected_layers, list) or not all(isinstance(_, int) for _ in selected_layers):
-                raise ValueError("para:{selected_layers} must be a list of integers.")
+                raise ValueError(f"selected_layers={selected_layers} must be a list of integers.")
             if random_rotation_gate is None:
                 random_rotation_gate = ['x', 'y', 'z']
             elif not isinstance(random_rotation_gate, list) or not all(
                     isinstance(gate, str) for gate in random_rotation_gate):
-                raise ValueError("para:{random_rotation_gate} must be ['x', 'y', 'z'].")
+                raise ValueError(f"random_rotation_gate={random_rotation_gate} must be ['x', 'y', 'z'].")
             if not isinstance(samples, int) or samples <= 0:
-                raise ValueError("para:{samples} must be a positive integer.")
+                raise ValueError(f"samples={samples} must be a positive integer.")
             if not isinstance(line_width, int) or line_width <= 0:
-                raise ValueError("para:{line_width} must be a positive integer.")
+                raise ValueError(f"line_width{line_width} must be a positive integer.")
             if not isinstance(bar_width, float) or bar_width <= 0:
-                raise ValueError("para:{bar_width} must be a positive float.")
+                raise ValueError(f"bar_width={bar_width} must be a positive float.")
             if not isinstance(font_size, int) or font_size <= 0:
-                raise ValueError("para:{font_size} must be a positive integer.")
+                raise ValueError(f"font_size={font_size} must be a positive integer.")
             if not isinstance(legend_size, int) or legend_size <= 0:
-                raise ValueError("para:{legend_size} must be a positive integer.")
+                raise ValueError(f"legend_size={legend_size} must be a positive integer.")
             if not isinstance(label_size, int) or label_size <= 0:
-                raise ValueError("para:{label_size} must be a positive integer.")
+                raise ValueError(f"label_size={label_size} must be a positive integer.")
             if not isinstance(absolute, bool):
-                raise ValueError("para:{absolute} must be a bool.")
+                raise ValueError(f"absolute={absolute} must be a bool.")
         except ValueError as e:
             print("Error initial parameter:", e)
             raise
@@ -114,7 +114,7 @@ class PLOTTING:
         """
         try:
             if refer_key != 'qubit' and refer_key != 'layer':
-                raise ValueError('para{refer_key} must be qubit or layer.')
+                raise ValueError(f'refer_key={refer_key} must be "qubit" or "layer".')
         except ValueError as e:
             print('Error parameter:', e)
             raise
@@ -209,9 +209,9 @@ class PLOTTING:
         """
         try:
             if not isinstance(scatter, bool):
-                raise ValueError('para:{scatter} must be a bool')
+                raise ValueError(f'scatter={scatter} must be a bool')
             if not isinstance(bar, bool):
-                raise ValueError('para:{bar} must be a bool')
+                raise ValueError(f'bar={bar} must be a bool')
         except ValueError as e:
             print('Error parameter:', e)
             raise
@@ -287,9 +287,9 @@ class PLOTTING:
         """
         try:
             if not isinstance(scatter, bool):
-                raise ValueError('para:{scatter} must be a bool')
+                raise ValueError(f'scatter={scatter} must be a bool.')
             if not isinstance(bar, bool):
-                raise ValueError('para:{bar} must be a bool')
+                raise ValueError(f'bar={bar} must be a bool.')
         except ValueError as e:
             print('Error parameter:', e)
             raise
@@ -365,9 +365,9 @@ class PLOTTING:
             modified_data = self.modified_data
         try:
             if not isinstance(refer_layer, int) or refer_layer <= 0:
-                raise ValueError('para:{refer_layer} must be a positive integer')
+                raise ValueError(f'refer_layer={refer_layer} must be a positive integer.')
             if refer_layer not in self.layers:
-                raise ValueError('para:{refer_layer} can not be found')
+                raise ValueError(f'refer_layer={refer_layer} can not be found in layers={self.layers}')
         except ValueError as e:
             print('Error parameter:', e)
             raise
@@ -449,6 +449,21 @@ def plot_simple_datas(original: list = None, modified: list = None, name: str = 
     Return:
         plt.show()
     """
+    try:
+        if not isinstance(original, list):
+            raise ValueError(f'original={original} must be a list.')
+        if not isinstance(modified, list):
+            raise ValueError(f'modified={modified} must be a list.')
+        if not isinstance(name, str):
+            raise ValueError(f'name={name} must be a string.')
+        if not isinstance(scatter, bool):
+            raise ValueError(f'scatter={scatter} must be a bool.')
+        if not isinstance(bar, bool):
+            raise ValueError(f'bar={bar} must be a bool.')
+    except ValueError as e:
+        print('Error parameter:', e)
+        raise
+
     line_width: int = 3
     bar_width: float = 0.01
     font_size: int = 30
