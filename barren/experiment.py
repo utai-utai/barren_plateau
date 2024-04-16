@@ -1055,7 +1055,6 @@ def ex2_3(save: bool = False):
     # Plot the bar and KDE carve of original data
     counts_orig, bin_edges_orig = np.histogram(original, bins=np.arange(-1, 1.01, bar_width), density=False)
     bin_centers_orig = (bin_edges_orig[:-1] + bin_edges_orig[1:]) / 2
-    weights_orig = np.ones_like(original) / len(original)
     kde_orig = gaussian_kde(original)
     kde_values_orig = kde_orig(np.arange(-1, 1 + bar_width, bar_width))
     plt.bar(bin_centers_orig, counts_orig / len(original), width=bar_width, alpha=0.6, color='blue')
@@ -1064,7 +1063,6 @@ def ex2_3(save: bool = False):
     # Plot the bar and KDE carve of modified data
     counts_mod, bin_edges_mod = np.histogram(modified, bins=np.arange(-1, 1.01, bar_width), density=False)
     bin_centers_mod = (bin_edges_mod[:-1] + bin_edges_mod[1:]) / 2
-    weights_mod = np.ones_like(modified) / len(modified)
     kde_mod = gaussian_kde(modified)
     kde_values_mod = kde_mod(np.arange(-1, 1 + bar_width, bar_width))
     plt.bar(bin_centers_mod, counts_mod / len(modified), width=bar_width, alpha=0.6, color='orange')
@@ -2157,7 +2155,3 @@ def ex3(save: bool = False):
     if save:
         plt.savefig('Experiment_3.png', dpi=300)
     plt.show()
-
-
-if __name__ == '__main__':
-    ex3()
