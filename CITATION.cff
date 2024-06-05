@@ -1,5 +1,4 @@
-cff-version: 1.0
-message: "If you use this software, please cite it as below."
+cff-version: 1.2.0
 authors:
 - family-names: "Yao"
   given-names: "Yuhan"
